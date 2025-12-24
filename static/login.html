@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SSH Login</title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light p-5">
+<div class="container bg-white p-4 rounded shadow" style="max-width:500px;">
+    <h3 class="mb-3">SSH Login</h3>
+    <form method="POST">
+        <div class="mb-3">
+            <label>Host</label>
+            <input class="form-control" name="host" required>
+        </div>
+        <div class="mb-3">
+            <label>Username</label>
+            <input class="form-control" name="username" required>
+        </div>
+        <div class="mb-3">
+            <label>Password</label>
+            <input type="password" class="form-control" name="password" required>
+        </div>
+        <button class="btn btn-primary w-100">Login</button>
+    </form>
+</div>
+</body>
+</html>

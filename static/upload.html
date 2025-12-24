@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Upload Excel</title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        #progress-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        #progress-box {
+            background: #fff;
+            padding: 20px 30px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+
+<body class="bg-light p-5">
+
+    <div class="container mb-3">
+        <div class="bg-white p-4 rounded shadow w-50 mx-auto">
+            <h3 class="mb-3">Upload Commands Excel</h3>
+            <form id="uploadForm">
+                <div class="mb-3">
+                    <input type="file" id="excelFile" name="file" class="form-control" accept=".xlsx" required>
+                </div>
+                <button class="btn btn-primary w-100" type="submit">Validate</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="container" id="results-container" style="display:none;">
+        <div class="bg-white p-4 rounded shadow w-100 mx-auto">
+            <div id="result"></div>
+        </div>
+    </div>
+
+    <div id="progress-overlay">
+        <div id="progress-box">
+            <div class="spinner-border text-primary mb-3" role="status" style="width:3rem;height:3rem;"></div>
+            <div>Loading. Please wait<span id="dots">...</span></div>
+        </div>
+    </div>
+
+    <script>
+        // animate dots
+        setInterval(() => {
+            const dots = document.getElementById("dots");
+            if (!dots) return;
+            dots.textContent = dots.textContent.length >= 3 ? "" : dots.textContent + ".";
+        }, 500);
+
+        const overlay = document.getElementById('progress-overlay');
+        const resultsContainer = document.getElementById('results-container');
+        const resultBox = document.getElementById('result');
+
+        // ---- STEP 1: Upload + Validate ----
+        document.getElementById('uploadForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const fileInput = document.getElementById('excelFile');
+            if (!fileInput.files.length) return alert('Please select an Excel file');
+
+            overlay.style.display = 'flex';
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                const response = await fetch('/validate', { method: 'POST', body: formData });
+                if (!response.ok) throw new Error(`Server error: ${response.status}`);
+                const html = await response.text();
+
+                overlay.style.display = 'none';
+                resultsContainer.style.display = 'block';
+                resultBox.innerHTML = html;
+
+             // setup Step 2 after validation page loads
+            } catch (err) {
+                overlay.style.display = 'none';
+                resultsContainer.style.display = 'block';
+                resultBox.innerHTML = '<p class="text-danger">Validation failed: ' + err + '</p>';
+            }
+        });
+
+    
+    </script>
+</body>
+
+</html>

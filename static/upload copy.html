@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload Excel</title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light p-5">
+
+<div class="container mb-3">
+    <div class="bg-white p-4 rounded shadow w-50 mx-auto">
+        <h3 class="mb-3">Upload Commands Excel</h3>
+        <form onsubmit="return uploadExcel()">
+            <input type="hidden" name="sid" value="{{sid}}">
+            <div class="mb-3">
+                <input type="file" name="file" class="form-control" accept=".xlsx" required>
+            </div>
+            <button class="btn btn-primary w-100">Check</button>
+        </form>
+    </div>
+</div>
+
+<div class="container" id="results-container" style="display:none;">
+    <div class="bg-white p-4 rounded shadow w-100 mx-auto">
+        <div id="result"></div>
+    </div>
+</div>
+
+<script>
+function uploadExcel() {
+    const file = document.querySelector('input[type=file]').files[0];
+    if (!file) return false;
+
+    const reader = new FileReader();
+    reader.onload = function() {
+        const b64 = reader.result.split(',')[1];
+        fetch('/command?sid={{sid}}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ file: b64 })
+        })
+        .then(r => r.text())
+        .then(html => {
+            document.getElementById('results-container').style.display='block';
+            document.getElementById('result').innerHTML = html;
+        })
+        .catch(err => {
+            document.getElementById('results-container').style.display='block';
+            document.getElementById('result').innerHTML = '<p class="text-danger">Upload failed: ' + err + '</p>';
+        });
+    };
+    reader.readAsDataURL(file);
+    return false;
+}
+
+function runCommands(form) {
+    const data = new FormData(form);
+    fetch(form.action, { method:'POST', body: new URLSearchParams(data) })
+        .then(r=>r.text())
+        .then(html => {
+            document.getElementById('results-container').style.display='block';
+            document.getElementById('result').innerHTML = html;
+        });
+    return false;
+}
+</script>
+
+</body>
+</html>
